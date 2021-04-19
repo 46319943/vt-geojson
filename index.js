@@ -1,9 +1,9 @@
 var zlib = require('zlib')
 var Pbf = require('pbf')
 var through = require('through2')
-var cover = require('tile-cover')
+var cover = require('@mapbox/tile-cover')
 var envelope = require('turf-envelope')
-var VectorTile = require('vector-tile').VectorTile
+var VectorTile = require('@mapbox/vector-tile').VectorTile
 var bboxPoly = require('turf-bbox-polygon')
 
 // see https://github.com/substack/insert-module-globals/pull/40
@@ -28,7 +28,7 @@ module.exports = vtgeojson
  * @param {boolean} options.strict - Emit an error and end the stream if a tile is not found or can't be read
  * @return {ReadableStream<Feature>} A stream of GeoJSON Feature objects. Emits `warning` events with `{ tile, error }` when a tile from the requested set is not found or can't be read.
  */
-function vtgeojson (uri, options) {
+function vtgeojson(uri, options) {
   options = options || {}
 
   if (options.layers && options.layers.length === 0) options.layers = null
@@ -61,7 +61,7 @@ function vtgeojson (uri, options) {
       next()
     })
 
-    function next () {
+    function next() {
       if (tiles.length === 0) {
         return stream.end()
       }
@@ -74,12 +74,12 @@ function vtgeojson (uri, options) {
 
   return stream
 
-  function loadError (err) {
+  function loadError(err) {
     stream.emit('error', err)
     stream.end()
   }
 
-  function tileError (tile, err) {
+  function tileError(tile, err) {
     stream.emit('warning', {
       tile: tile,
       error: err
@@ -87,7 +87,7 @@ function vtgeojson (uri, options) {
     if (options.strict) { return err }
   }
 
-  function writeTile (tile, _, next) {
+  function writeTile(tile, _, next) {
     var self = this
     var x = tile[0]
     var y = tile[1]
@@ -104,7 +104,7 @@ function vtgeojson (uri, options) {
         processTile(null, tiledata)
       }
 
-      function processTile (err, tiledata) {
+      function processTile(err, tiledata) {
         if (err) {
           return next(tileError(tile, err))
         }
@@ -112,9 +112,9 @@ function vtgeojson (uri, options) {
         var vt = new VectorTile(new Pbf(tiledata))
 
         var layers = Object.keys(vt.layers)
-        .filter(function (ln) {
-          return !options.layers || options.layers.indexOf(ln) >= 0
-        })
+          .filter(function (ln) {
+            return !options.layers || options.layers.indexOf(ln) >= 0
+          })
 
         for (var j = 0; j < layers.length; j++) {
           var ln = layers[j]
@@ -137,8 +137,8 @@ function vtgeojson (uri, options) {
             }
           }
         }
-
-        next()
+        // recursive call, should not appear here
+        // next()
       }
     })
   }
