@@ -137,8 +137,10 @@ function vtgeojson(uri, options) {
             }
           }
         }
-        // recursive call, should not appear here
-        // next()
+        // recursive call, should not appear here?
+        // next is the param of the callback. Chain call.
+        // pipeline of the stream api.
+        next()
       }
     })
   }
